@@ -5,6 +5,7 @@
 - 开个坑，有空就会填一填
 - 项目开始搭建，完成度10%
 - 完成播放器样式，完成度25%
+- 当前歌词高亮显示，完成度28%
 
 ## 应用预览
 [https://iflycn.github.io/music/dist/](https://iflycn.github.io/music/dist/)

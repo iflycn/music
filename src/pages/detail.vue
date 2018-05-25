@@ -2,16 +2,19 @@
   <div class="detail">
     <div class="song_wrap">
       <div class="song_disc" @click="$_SongToggle()">
-        <div class="song_turn circling" :class="{ ispaused: isPaused }">
+        <div class="song_turn circling" :class="{ paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
-        <span v-if="isPaused" class="song_play"></span>
+        <span v-if="controls.isPaused" class="song_play"></span>
       </div>
     </div>
     <div class="lyric">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
-        <p v-for="(v, i) in song.lyric" :key="i" :data-time="v.time">{{ v.txt }}</p>
+        <p v-for="(v, i) in song.lyric" :key="i"
+          :class="{ hover: controls.currentTime >= v.time }"
+          :style="{ margin: '-' + controls.line * 2 + 'em 0 ' + controls.line * 2 + 'em 0'}"
+          >{{ v.txt }}</p>
       </div>
     </div>
     <audio ref="audio" :src="song.url" preload></audio>
@@ -25,7 +28,13 @@ export default {
   components: {},
   data() {
     return {
-      isPaused: !0,
+      controls: {
+        id: -1,
+        line: 0,
+        isPaused: !0,
+        duration: 0,
+        currentTime: 0
+      },
       song: {
         id: -1,
         name: "未知",
@@ -41,26 +50,36 @@ export default {
     console.log("[PARAMS] detail?id=" + id);
     this.$_GetDetail(id);
   },
+  destroyed() {
+    clearInterval(this.controls.id);
+  },
   watch: {
+    "controls.duration"() {
+      console.warn("Can not autoplay on mobile, wait to find another way.");
+      // this.controls.duration > 0 && this.$_SongToggle();
+    },
+    "controls.currentTime"() {
+      this.controls.currentTime >= this.controls.duration &&
+        this.$_SongToggle();
+    },
     "song.id"() {
       this.song.lyric = this.$_FormatLrc(this.song.lyric);
-      setTimeout(() => {
-        this.$_SongToggle();
-      }, 0);
+      clearInterval(this.controls.id);
+      this.controls.id = setInterval(() => {
+        this.$_StartTimer();
+      }, 100);
     }
   },
   methods: {
-    $_GetDetail(id) {
-      const that = this;
-      that.axios
-        .get(that.util.baseUrl + "/detail?id=" + id)
-        .then(res => {
-          console.log(res.data);
-          that.song = res.data;
-        })
-        .catch(err => {
-          console.error(err);
-        });
+    $_StartTimer() {
+      this.controls.duration = this.$refs.audio.duration * 1e3;
+      this.controls.currentTime = this.$refs.audio.currentTime * 1e3;
+    },
+    $_SongToggle() {
+      this.controls.isPaused
+        ? this.$refs.audio.play()
+        : this.$refs.audio.pause();
+      this.controls.isPaused = !this.controls.isPaused;
     },
     $_FormatLrc(lrc) {
       const lines = lrc.split("\n");
@@ -83,11 +102,17 @@ export default {
       });
       return lrc;
     },
-    $_SongToggle() {
-      // console.log(this.$refs.audio.duration);
-      // console.log(this.$refs.audio.currentTime);
-      this.isPaused ? this.$refs.audio.play() : this.$refs.audio.pause();
-      this.isPaused = !this.isPaused;
+    $_GetDetail(id) {
+      const that = this;
+      that.axios
+        .get(that.util.baseUrl + "/detail?id=" + id)
+        .then(res => {
+          console.log(res.data);
+          that.song = res.data;
+        })
+        .catch(err => {
+          console.error(err);
+        });
     }
   }
 };
@@ -98,7 +123,7 @@ export default {
   -webkit-animation: circling 20s infinite linear;
   animation: circling 20s infinite linear;
 }
-.ispaused {
+.paused {
   -webkit-animation-play-state: paused;
   animation-play-state: paused;
 }
@@ -190,12 +215,16 @@ export default {
 }
 .lyric_txt {
   height: 8em;
-  overflow-y: scroll;
+  overflow: hidden;
 }
 .lyric_txt p {
   line-height: 2em;
   color: hsla(0, 0%, 100%, 0.6);
   text-align: center;
+  transition: 0.5s;
+}
+.lyric_txt p.hover {
+  color: #fff;
 }
 
 @media screen and (min-width: 360px) {
