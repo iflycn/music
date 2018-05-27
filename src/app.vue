@@ -8,7 +8,10 @@
 
 <script>
 export default {
-  name: "app"
+  name: "app",
+  beforeCreate() {
+    console.log("%c Gito Player © Github.com/iflycn/music","margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#df3436");
+  }
 };
 </script>
 

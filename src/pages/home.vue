@@ -5,10 +5,10 @@
       <li v-for="(v, i) in slist" :key="i"><router-link :to="'/detail/' + v.id">
         <span>{{ $_CompleteNum(i) }}</span>
         <h4>{{ v.name }}</h4>
-        <small>{{ v.artist }} - {{ v.name }}</small>
+        <small>{{ v.artist }} - {{ v.album }}</small>
       </router-link></li>
     </ul>
-    <a href="https://github.com/iflycn/music" class="copyright">Fork: Github.com/iflycn/music</a>
+    <a href="https://github.com/iflycn/music" class="copyright">Gito Player &copy; Github.com/iflycn/music</a>
   </div>
 </template>
 

@@ -5,7 +5,7 @@
         <div class="song_turn circling" :class="{ paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
-        <span v-show="controls.isPaused" class="song_play"></span>
+        <span class="song_play" :class="{ song_pause: !controls.isPaused }"></span>
       </div>
     </div>
     <div class="lyric">
@@ -53,7 +53,7 @@ export default {
   },
   watch: {
     "controls.duration"() {
-      console.warn("Can not autoplay on mobile, wait to find another way.");
+      console.warn("Can NOT autoplay on mobile, wait to find another way.");
       // this.controls.duration > 0 && this.$_SongToggle();
     },
     "controls.currentTime"() {
@@ -206,14 +206,18 @@ export default {
 }
 .song_play {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 50px;
-  height: 50px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url(../assets/icon_play.png);
-  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 50px 50px;
   z-index: 9;
+}
+.song_pause {
+  opacity: 0.01;
 }
 .lyric {
   margin: 40px auto 0 auto;
@@ -264,8 +268,7 @@ export default {
     height: 184px;
   }
   .song_play {
-    width: 56px;
-    height: 56px;
+    background-size: 56px 56px;
   }
   .lyric {
     width: 296px;
@@ -292,8 +295,7 @@ export default {
     height: 212px;
   }
   .song_play {
-    width: 66px;
-    height: 66px;
+    background-size: 66px 66px;
   }
   .lyric {
     width: 342px;
