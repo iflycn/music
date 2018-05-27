@@ -1,6 +1,8 @@
 <template>
   <div class="main">
-    <router-view></router-view>
+    <transition name="fade-in" mode="out-in">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
@@ -12,7 +14,6 @@ export default {
 
 <style>
 /* 公用样式v0.2 */
-
 * {
   margin: 0;
   padding: 0;
@@ -100,10 +101,21 @@ a {
 .font_20 {
   font-size: 2em;
 }
+/* 过渡动画 */
+.fade-in-enter,
+.fade-in-leave-active {
+  opacity: 0;
+}
+.fade-in-enter-active,
+.fade-in-leave-active {
+  -webkit-transition: all 0.3s cubic-bezier(0.55, 0, 0.1, 1);
+  transition: all 0.3s cubic-bezier(0.55, 0, 0.1, 1);
+}
 /* 私有样式 */
-body,
-a,
-a:visited {
+body {
+  color: #333;
+}
+a {
   color: #333;
 }
 </style>

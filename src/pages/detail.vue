@@ -5,16 +5,15 @@
         <div class="song_turn circling" :class="{ paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
-        <span v-if="controls.isPaused" class="song_play"></span>
+        <span v-show="controls.isPaused" class="song_play"></span>
       </div>
     </div>
     <div class="lyric">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
-        <p v-for="(v, i) in song.lyric" :key="i"
-          :class="{ hover: controls.currentTime >= v.time }"
-          :style="{ margin: '-' + controls.line * 2 + 'em 0 ' + controls.line * 2 + 'em 0'}"
-          >{{ v.txt }}</p>
+        <ul :style="{ margin: '-' + ~~controls.line * 2 + 'em 0 ' + ~~controls.line * 2 + 'em 0'}">
+          <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line == i }">{{ v.txt }}</li>
+        </ul>
       </div>
     </div>
     <audio ref="audio" :src="song.url" preload></audio>
@@ -25,13 +24,12 @@
 <script>
 export default {
   name: "detail",
-  components: {},
   data() {
     return {
       controls: {
         id: -1,
-        line: 0,
         isPaused: !0,
+        line: 0.001,
         duration: 0,
         currentTime: 0
       },
@@ -63,17 +61,31 @@ export default {
         this.$_SongToggle();
     },
     "song.id"() {
-      this.song.lyric = this.$_FormatLrc(this.song.lyric);
+      if (this.song.lyric.length > 0) {
+        this.song.lyric = this.$_FormatLrc(this.song.lyric);
+      }
       clearInterval(this.controls.id);
       this.controls.id = setInterval(() => {
-        this.$_StartTimer();
-      }, 100);
+        this.controls.line = this.$_StartTimer();
+      }, 500);
     }
   },
   methods: {
     $_StartTimer() {
-      this.controls.duration = this.$refs.audio.duration * 1e3;
-      this.controls.currentTime = this.$refs.audio.currentTime * 1e3;
+      const duration = this.$refs.audio.duration * 1e3;
+      const currentTime = this.$refs.audio.currentTime * 1e3;
+      this.controls.duration = duration;
+      this.controls.currentTime = currentTime;
+      const lrc = [].concat(this.song.lyric);
+      lrc.push({ time: duration });
+      if (currentTime < lrc[0].time) {
+        return 0.001;
+      }
+      for (let i = 0; i < lrc.length - 1; i++) {
+        if (currentTime >= lrc[i].time && currentTime < lrc[i + 1].time) {
+          return i;
+        }
+      }
     },
     $_SongToggle() {
       this.controls.isPaused
@@ -214,16 +226,21 @@ export default {
   overflow: hidden;
 }
 .lyric_txt {
-  height: 8em;
+  height: 6em;
   overflow: hidden;
 }
-.lyric_txt p {
+.lyric_txt ul,
+.lyric_txt li {
+  transition: 0.5s;
+}
+.lyric_txt li {
+  height: 2em;
   line-height: 2em;
   color: hsla(0, 0%, 100%, 0.6);
   text-align: center;
-  transition: 0.5s;
+  overflow: hidden;
 }
-.lyric_txt p.hover {
+.lyric_txt li.hover {
   color: #fff;
 }
 
