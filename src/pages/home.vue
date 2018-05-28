@@ -26,7 +26,7 @@ export default {
   methods: {
     $_CompleteNum(i) {
       i += 1;
-      return ((1 << 2).toString(2) + i).slice(-2);
+      return this.util.fillZero(i, 2);
     },
     $_GetList() {
       const that = this;
@@ -92,7 +92,7 @@ export default {
   display: block;
   color: #888;
 }
-.copyright{
+.copyright {
   display: block;
   padding: 1em;
   font-size: 0.6em;

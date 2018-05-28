@@ -21,7 +21,7 @@
       </div>
     </div>
     <audio ref="audio" :src="song.url" preload></audio>
-    <div class="song_bg" :style="{ backgroundImage: 'url(' + song.picUrl + ')' }"></div>
+    <div class="song_bg" :style="{ backgroundImage: bgStyle }"></div>
   </div>
 </template>
 
@@ -63,17 +63,20 @@ export default {
       const currentTime = ~~this.controls.currentTime;
       const duration = ~~this.controls.duration;
       return (
-        ((1 << 2).toString(2) + ~~((currentTime / 60) % 60)).slice(-2) +
+        this.util.fillZero(~~((currentTime / 60) % 60), 2) +
         ":" +
-        ((1 << 2).toString(2) + currentTime % 60).slice(-2) +
+        this.util.fillZero(currentTime % 60, 2) +
         "/" +
-        ((1 << 2).toString(2) + ~~((duration / 60) % 60)).slice(-2) +
+        this.util.fillZero(~~((duration / 60) % 60), 2) +
         ":" +
-        ((1 << 2).toString(2) + duration % 60).slice(-2)
+        this.util.fillZero(duration % 60, 2)
       );
     },
     lyricTop: function() {
       return "-" + ~~this.controls.line * 2 + "em";
+    },
+    bgStyle: function() {
+      return "url(" + this.song.picUrl + ")";
     }
   },
   created() {

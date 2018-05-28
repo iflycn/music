@@ -1,5 +1,5 @@
 # Gito Player
-本项目是一个极简的 `Vue` 音乐播放器，使用了官方脚手架 `vue-cli` 搭建、 `Webpack` 打包，涉及到的技术栈包括 `Vue.js`、`vue-router`、`Axios`
+这是一个极简的 `Vue` 音乐播放器，使用了官方脚手架 `vue-cli` 搭建、 `Webpack` 打包，涉及到的技术栈包括 `Vue.js`、`vue-router`、`Axios`
 
 ## 应用预览
 [https://iflycn.github.io/music/dist/](https://iflycn.github.io/music/dist/)
@@ -27,7 +27,9 @@ npm run build
 - [x] 建立简单列表页，完成度 50%
 - [x] 添加歌曲进度条，完成度 60%
 - [x] 进度条拖动控制，完成度 70%
-- [ ] 播放器抽象为组件，待完成
+- [ ] 歌单连续播放，待完成
 - [ ] 解析复杂 LRC 文件，待完成
-- [x] 已知 BUG：控制播放时，微信意外弹出图片浏览界面
+- [ ] 歌单显示方式切换，待完成
+- [ ] 播放器抽象为组件，待完成
+- [x] 修复 BUG：控制播放时，微信意外弹出图片浏览界面
 - [ ] 已知 BUG：因移动端限制，音乐无法自动播放
