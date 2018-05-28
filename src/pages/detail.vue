@@ -9,13 +9,13 @@
       </div>
     </div>
     <div class="song_range">
-      <small>{{ range }}</small>
-      <input type="range" disabled :max="controls.duration" :value="controls.currentTime">
+      <small>{{ rangeTxt }}</small>
+      <input type="range" v-model="controls.currentTime" :max="controls.duration" :style="{ background: rangeStyle }" @input="$_SongJump()">
     </div>
     <div class="lyric">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
-        <ul :style="{ marginTop: '-' + ~~controls.line * 2 + 'em'}">
+        <ul :style="{ marginTop: lyricTop}">
           <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line == i }">{{ v.txt }}</li>
         </ul>
       </div>
@@ -48,9 +48,20 @@ export default {
     };
   },
   computed: {
-    range: function() {
-      const currentTime = ~~(this.controls.currentTime / 1e3);
-      const duration = ~~(this.controls.duration / 1e3);
+    rangeStyle: function() {
+      const percent =
+        ~~(this.controls.currentTime / this.controls.duration * 100) + 1;
+      return (
+        "linear-gradient(to right, hsla(0, 0%, 100%, 0.2), #fff " +
+        percent +
+        "%, hsla(0, 0%, 100%, 0.2) " +
+        percent +
+        "%, hsla(0, 0%, 100%, 0.2))"
+      );
+    },
+    rangeTxt: function() {
+      const currentTime = ~~this.controls.currentTime;
+      const duration = ~~this.controls.duration;
       return (
         ((1 << 2).toString(2) + ~~((currentTime / 60) % 60)).slice(-2) +
         ":" +
@@ -60,6 +71,9 @@ export default {
         ":" +
         ((1 << 2).toString(2) + duration % 60).slice(-2)
       );
+    },
+    lyricTop: function() {
+      return "-" + ~~this.controls.line * 2 + "em";
     }
   },
   created() {
@@ -73,7 +87,6 @@ export default {
   watch: {
     "controls.duration"() {
       console.warn("Can NOT autoplay on mobile, wait to find another way.");
-      // this.controls.duration > 0 && this.$_SongToggle();
     },
     "controls.currentTime"() {
       this.controls.currentTime >= this.controls.duration &&
@@ -91,26 +104,36 @@ export default {
   },
   methods: {
     $_StartTimer() {
-      const duration = this.$refs.audio.duration * 1e3;
-      const currentTime = this.$refs.audio.currentTime * 1e3;
+      const duration = this.$refs.audio.duration;
+      const currentTime = this.$refs.audio.currentTime;
       this.controls.duration = duration;
       this.controls.currentTime = currentTime;
       const lrc = [].concat(this.song.lyric);
       lrc.push({ time: duration });
-      if (currentTime < lrc[0].time) {
+      if (currentTime < lrc[0].time / 1e3) {
         return 1e-3;
       }
       for (let i = 0; i < lrc.length - 1; i++) {
-        if (currentTime >= lrc[i].time && currentTime < lrc[i + 1].time) {
+        if (
+          currentTime >= lrc[i].time / 1e3 &&
+          currentTime < lrc[i + 1].time / 1e3
+        ) {
           return i;
         }
       }
     },
     $_SongToggle() {
-      this.controls.isPaused
-        ? this.$refs.audio.play()
-        : this.$refs.audio.pause();
-      this.controls.isPaused = !this.controls.isPaused;
+      if (this.controls.duration > 0) {
+        this.controls.isPaused
+          ? this.$refs.audio.play()
+          : this.$refs.audio.pause();
+        this.controls.isPaused = !this.controls.isPaused;
+      }
+    },
+    $_SongJump() {
+      if (this.controls.currentTime < this.controls.duration) {
+        this.$refs.audio.currentTime = this.controls.currentTime;
+      }
     },
     $_FormatLrc(lrc) {
       const lines = lrc.split("\n");
@@ -245,7 +268,7 @@ export default {
 }
 .song_range {
   position: relative;
-  margin-top: 0px;
+  margin-top: 10px;
   width: 100%;
   height: 20px;
 }
@@ -277,11 +300,11 @@ export default {
   margin-top: -2px;
   height: 5px;
   width: 10px;
-  background: hsla(0, 0%, 100%, 0.6);
+  background: #fff;
   border-radius: 3px;
 }
 .lyric {
-  margin: 30px auto 10px auto;
+  margin: 30px auto 0 auto;
   width: 248px;
 }
 .lyric h3 {
