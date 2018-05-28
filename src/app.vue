@@ -1,7 +1,9 @@
 <template>
   <div class="main">
     <transition name="fade-in" mode="out-in">
-      <router-view></router-view>
+      <keep-alive include="home">
+        <router-view></router-view>
+      </keep-alive>
     </transition>
   </div>
 </template>
@@ -10,7 +12,10 @@
 export default {
   name: "app",
   beforeCreate() {
-    console.log("%c Gito Player @ Github.com/iflycn/music","margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#3caaf7");
+    console.log(
+      "%c Gito Player @ Github.com/iflycn/music",
+      "margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#3caaf7"
+    );
   }
 };
 </script>

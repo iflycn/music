@@ -112,7 +112,7 @@ export default {
       this.controls.duration = duration;
       this.controls.currentTime = currentTime;
       const lrc = [].concat(this.song.lyric);
-      lrc.push({ time: duration });
+      lrc.push({ time: duration * 1e3 });
       if (currentTime < lrc[0].time / 1e3) {
         return 1e-3;
       }
