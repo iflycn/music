@@ -1,17 +1,21 @@
 <template>
   <div class="detail">
     <div class="song_wrap">
-      <div class="song_disc" @click="$_SongToggle()">
+      <div class="song_disc" :class="{ song_needle: controls.isPaused }" @click="$_SongToggle()">
         <div class="song_turn circling" :class="{ paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
         <span class="song_play" :class="{ song_pause: !controls.isPaused }"></span>
       </div>
     </div>
+    <div class="song_range">
+      <small>{{ range }}</small>
+      <input type="range" disabled :max="controls.duration" :value="controls.currentTime">
+    </div>
     <div class="lyric">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
-        <ul :style="{ margin: '-' + ~~controls.line * 2 + 'em 0 ' + ~~controls.line * 2 + 'em 0'}">
+        <ul :style="{ marginTop: '-' + ~~controls.line * 2 + 'em'}">
           <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line == i }">{{ v.txt }}</li>
         </ul>
       </div>
@@ -29,7 +33,7 @@ export default {
       controls: {
         id: -1,
         isPaused: !0,
-        line: 0.001,
+        line: 1e-3,
         duration: 0,
         currentTime: 0
       },
@@ -42,6 +46,21 @@ export default {
         lyric: []
       }
     };
+  },
+  computed: {
+    range: function() {
+      const currentTime = ~~(this.controls.currentTime / 1e3);
+      const duration = ~~(this.controls.duration / 1e3);
+      return (
+        ((1 << 2).toString(2) + ~~((currentTime / 60) % 60)).slice(-2) +
+        ":" +
+        ((1 << 2).toString(2) + currentTime % 60).slice(-2) +
+        "/" +
+        ((1 << 2).toString(2) + ~~((duration / 60) % 60)).slice(-2) +
+        ":" +
+        ((1 << 2).toString(2) + duration % 60).slice(-2)
+      );
+    }
   },
   created() {
     const id = this.$route.params.id;
@@ -67,7 +86,7 @@ export default {
       clearInterval(this.controls.id);
       this.controls.id = setInterval(() => {
         this.controls.line = this.$_StartTimer();
-      }, 500);
+      }, 1e3);
     }
   },
   methods: {
@@ -79,7 +98,7 @@ export default {
       const lrc = [].concat(this.song.lyric);
       lrc.push({ time: duration });
       if (currentTime < lrc[0].time) {
-        return 0.001;
+        return 1e-3;
       }
       for (let i = 0; i < lrc.length - 1; i++) {
         if (currentTime >= lrc[i].time && currentTime < lrc[i + 1].time) {
@@ -164,7 +183,7 @@ export default {
   width: 120%;
   height: 120%;
   background-color: #000;
-  background-size: auto 100%;
+  background-size: cover;
   background-position: center center;
   background-attachment: fixed;
   filter: blur(24px) brightness(0.6);
@@ -184,12 +203,17 @@ export default {
 .song_disc:after {
   content: " ";
   position: absolute;
-  top: -63px;
+  top: -71px;
   left: 107px;
   width: 84px;
-  height: 122px;
+  height: 128px;
   background-image: url(../assets/disc_needle.png);
   background-size: 100% 100%;
+  transform-origin: 15.15% 6.18%;
+  transition: 0.2s;
+}
+.song_needle:after {
+  transform: rotate(-24deg);
 }
 .song_turn {
   width: 100%;
@@ -219,12 +243,49 @@ export default {
 .song_pause {
   opacity: 0.01;
 }
+.song_range {
+  position: relative;
+  margin-top: 0px;
+  width: 100%;
+  height: 20px;
+}
+.song_range small {
+  position: absolute;
+  top: -0.3em;
+  right: 0.6em;
+  font-size: 0.6em;
+  color: hsla(0, 0%, 100%, 0.6);
+}
+.song_range input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  border-radius: 2px;
+  background: hsla(0, 0%, 100%, 0.2);
+}
+.song_range input[type="range"]:focus {
+  outline: none;
+}
+.song_range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+.song_range input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px;
+  border-radius: 50%;
+}
+.song_range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -2px;
+  height: 5px;
+  width: 10px;
+  background: hsla(0, 0%, 100%, 0.6);
+  border-radius: 3px;
+}
 .lyric {
-  margin: 40px auto 0 auto;
+  margin: 30px auto 10px auto;
   width: 248px;
 }
 .lyric h3 {
-  margin-bottom: 1em;
+  margin-bottom: 0.8em;
   font-weight: normal;
   text-align: center;
   overflow: hidden;
@@ -253,10 +314,10 @@ export default {
     padding-top: 70px;
   }
   .song_disc:after {
-    top: -70px;
+    top: -79px;
     left: 133px;
     width: 96px;
-    height: 137px;
+    height: 146px;
   }
   .song_disc {
     width: 296px;
@@ -280,10 +341,10 @@ export default {
     padding-top: 80px;
   }
   .song_disc:after {
-    top: -80px;
+    top: -90px;
     left: 150px;
     width: 110px;
-    height: 157px;
+    height: 167px;
   }
   .song_disc {
     width: 342px;

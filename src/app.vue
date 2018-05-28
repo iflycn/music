@@ -10,7 +10,7 @@
 export default {
   name: "app",
   beforeCreate() {
-    console.log("%c Gito Player © Github.com/iflycn/music","margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#df3436");
+    console.log("%c Gito Player @ Github.com/iflycn/music","margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#3caaf7");
   }
 };
 </script>

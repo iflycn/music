@@ -8,7 +8,7 @@
         <small>{{ v.artist }} - {{ v.album }}</small>
       </router-link></li>
     </ul>
-    <a href="https://github.com/iflycn/music" class="copyright">Gito Player &copy; Github.com/iflycn/music</a>
+    <a href="https://github.com/iflycn/music" class="copyright">Gito Player @ Github.com</a>
   </div>
 </template>
 
