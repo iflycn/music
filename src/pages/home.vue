@@ -1,6 +1,11 @@
 <template>
   <div class="home">
+    <loading v-if="slist.length === 0"></loading>
     <h1 class="songs_title">推荐歌单</h1>
+    <ul v-if="slist.length > 1" class="songs_control">
+      <li><router-link :to="controlOrder">顺序播放</router-link></li>
+      <li><router-link :to="controlRandom">随机播放</router-link></li>
+    </ul>
     <ul class="songs_list">
       <li v-for="(v, i) in slist" :key="i"><router-link :to="'/detail/' + v.id">
         <span>{{ $_CompleteNum(i) }}</span>
@@ -13,8 +18,11 @@
 </template>
 
 <script>
+import loading from "@/components/loading";
+
 export default {
   name: "home",
+  components: { loading },
   data() {
     return {
       slist: []
@@ -23,10 +31,25 @@ export default {
   created() {
     this.$_GetList();
   },
+  computed: {
+    controlOrder: function() {
+      return "/detail/" + this.$_GetIds();
+    },
+    controlRandom: function() {
+      return "/detail/" + this.util.arrShuffle(this.$_GetIds());
+    }
+  },
   methods: {
     $_CompleteNum(i) {
       i += 1;
       return this.util.fillZero(i, 2);
+    },
+    $_GetIds() {
+      const ids = [];
+      for (let i = 0; i < this.slist.length; i++) {
+        ids.push(this.slist[i].id);
+      }
+      return ids;
     },
     $_GetList() {
       const that = this;
@@ -51,6 +74,33 @@ export default {
   font-size: 2em;
   font-weight: normal;
   border-left: 3px solid #df3436;
+}
+.songs_control:after {
+  content: " ";
+  clear: both;
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+.songs_control li {
+  float: left;
+  margin-left: -1px;
+  width: 50%;
+  text-align: center;
+  border: 1px solid #f3f3f3;
+  border-right: 0;
+  background: #fff;
+}
+.songs_control a {
+  display: inline-block;
+  padding: 1em 2em;
+  font-size: 0.8em;
+  color: #888;
+  background-image: url(../assets/icon_play_order.png);
+  background-repeat: no-repeat;
+  background-position: 0 center;
+  background-size: auto 1em;
+  background-origin: content;
 }
 .songs_list {
   background: url(../assets/slist_bg.png) 0 bottom no-repeat;

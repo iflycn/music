@@ -1,5 +1,6 @@
 <template>
   <div class="detail">
+    <loading v-if="controls.duration === 0"></loading>
     <div class="song_wrap">
       <div class="song_disc" :class="{ song_needle: controls.isPaused }" @click="$_SongToggle()">
         <div class="song_turn circling" :class="{ paused: controls.isPaused }">
@@ -16,7 +17,7 @@
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
         <ul :style="{ marginTop: lyricTop}">
-          <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line == i }">{{ v.txt }}</li>
+          <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line === i }">{{ v.txt }}</li>
         </ul>
       </div>
     </div>
@@ -26,12 +27,16 @@
 </template>
 
 <script>
+import loading from "@/components/loading";
+
 export default {
   name: "detail",
+  components: { loading },
   data() {
     return {
       controls: {
-        id: -1,
+        ids: [],
+        timer: -1,
         isPaused: !0,
         line: 1e-3,
         duration: 0,
@@ -82,25 +87,30 @@ export default {
   created() {
     const id = this.$route.params.id;
     console.log("[PARAMS] detail?id=" + id);
-    this.$_GetDetail(id);
+    this.controls.ids = id.split(",");
+    this.$_GetDetail(this.controls.ids[0]);
   },
   destroyed() {
-    clearInterval(this.controls.id);
+    clearInterval(this.controls.timer);
   },
   watch: {
     "controls.duration"() {
-      console.warn("Can NOT autoplay on mobile, wait to find another way.");
+      if (this.controls.duration > 0) {
+        console.warn("Can NOT autoplay on mobile, wait to find another way.");
+      }
     },
     "controls.currentTime"() {
-      this.controls.currentTime >= this.controls.duration &&
-        this.$_SongToggle();
+      if (this.controls.currentTime >= this.controls.duration) {
+        this.$_SongPause();
+        this.controls.ids.length > 1 && this.$_SongNext();
+      }
     },
     "song.id"() {
       if (this.song.lyric.length > 0) {
         this.song.lyric = this.$_FormatLrc(this.song.lyric);
       }
-      clearInterval(this.controls.id);
-      this.controls.id = setInterval(() => {
+      clearInterval(this.controls.timer);
+      this.controls.timer = setInterval(() => {
         this.controls.line = this.$_StartTimer();
       }, 1e3);
     }
@@ -125,18 +135,32 @@ export default {
         }
       }
     },
-    $_SongToggle() {
+    $_SongPlay() {
       if (this.controls.duration > 0) {
-        this.controls.isPaused
-          ? this.$refs.audio.play()
-          : this.$refs.audio.pause();
-        this.controls.isPaused = !this.controls.isPaused;
+        this.$refs.audio.play();
+        this.controls.isPaused = !1;
       }
+    },
+    $_SongPause() {
+      this.$refs.audio.pause();
+      this.controls.isPaused = !0;
+    },
+    $_SongToggle() {
+      this.controls.isPaused ? this.$_SongPlay() : this.$_SongPause();
+    },
+    $_SongLoad() {
+      this.$refs.audio.load();
     },
     $_SongJump() {
       if (this.controls.currentTime < this.controls.duration) {
         this.$refs.audio.currentTime = this.controls.currentTime;
       }
+    },
+    $_SongNext() {
+      this.controls.duration = 0;
+      this.controls.ids.splice(0, 1);
+      this.controls.ids.push(this.song.id);
+      this.$_GetDetail(this.controls.ids[0]);
     },
     $_FormatLrc(lrc) {
       const lines = lrc.split("\n");

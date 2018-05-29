@@ -1,0 +1,51 @@
+<template>
+  <div>
+    <span>
+      <svg viewBox="25 25 50 50">
+        <circle cx="50" cy="50" r="20" fill="none"></circle>
+      </svg>
+    </span>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "loading"
+};
+</script>
+
+<style scoped>
+div {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 9999;
+}
+div span {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  transform: translate(-50%, -50%);
+}
+div svg {
+  width: 100%;
+  height: 100%;
+  animation: rotate 2s linear infinite;
+}
+div circle {
+  stroke: #df3436;
+  stroke-width: 2;
+  stroke-dasharray: 90, 200;
+  stroke-linecap: round;
+}
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
