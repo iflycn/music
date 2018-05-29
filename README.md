@@ -35,4 +35,5 @@ npm run build
 - [ ] 已知 BUG：因移动端限制，音乐无法自动播放
 
 ## 参考资料
-- [http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp](W3school.com.cn/tags/html_ref_audio_video_dom.asp)
+- [http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp](http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp)
+- [https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement)

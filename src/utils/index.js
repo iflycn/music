@@ -74,8 +74,7 @@ export default {
   },
 
   //函数：求字符串字节长度（字符串，汉字长度）
-  byteLen(s, l) {
-    l = l ? l : 2;
+  byteLen(s, l = 2) {
     const arr = new Array(l + 1).join("-");
     return s.replace(/[^\x00-\xff]/g, arr).length;
   },
@@ -92,7 +91,7 @@ export default {
   },
 
   //函数：截取数字不足补零（数字，输出长度）
-  fillZero(v, n) {
+  fillZero(v, n = 2) {
     return ((1 << n).toString(2) + v).slice(-n);
   },
 
@@ -104,7 +103,7 @@ export default {
   //函数：数组随机打乱（数组）
   arrShuffle(arr) {
     for (let i = 1; i < arr.length; i++) {
-      const r = Math.floor(Math.random() * (i + 1));
+      const r = ~~(Math.random() * (i + 1));
       [arr[i], arr[r]] = [arr[r], arr[i]];
     }
     return arr;

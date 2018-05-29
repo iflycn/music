@@ -6,23 +6,23 @@
         <div class="song_turn circling" :class="{ paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
-        <span class="song_play" :class="{ song_pause: !controls.isPaused }"></span>
+        <span class="song_play" :class="{ song_pause: !controls.isPaused || controls.duration === 0 }"></span>
       </div>
     </div>
-    <div class="song_range">
+    <div v-show="song.name && song.artist" class="song_range">
       <small>{{ rangeTxt }}</small>
       <input type="range" v-model="controls.currentTime" :max="controls.duration" :style="{ background: rangeStyle }" @input="$_SongJump()">
     </div>
-    <div class="lyric">
+    <div v-show="song.name && song.artist" class="lyric">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
-        <ul :style="{ marginTop: lyricTop}">
+        <ul :style="{ marginTop: `-${~~this.controls.line * 2}em`}">
           <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line === i }">{{ v.txt }}</li>
         </ul>
       </div>
     </div>
     <audio ref="audio" :src="song.url" preload></audio>
-    <div class="song_bg" :style="{ backgroundImage: bgStyle }"></div>
+    <div class="song_bg" :style="{ backgroundImage: `url(${song.picUrl})` }"></div>
   </div>
 </template>
 
@@ -44,9 +44,9 @@ export default {
       },
       song: {
         id: -1,
-        name: "未知",
-        artist: "未知",
-        url: "",
+        name: null,
+        artist: null,
+        url: null,
         picUrl: require("../assets/disc_default.png"),
         lyric: []
       }
@@ -68,25 +68,19 @@ export default {
       const currentTime = ~~this.controls.currentTime;
       const duration = ~~this.controls.duration;
       return (
-        this.util.fillZero(~~((currentTime / 60) % 60), 2) +
+        this.util.fillZero(~~((currentTime / 60) % 60)) +
         ":" +
-        this.util.fillZero(currentTime % 60, 2) +
+        this.util.fillZero(currentTime % 60) +
         "/" +
-        this.util.fillZero(~~((duration / 60) % 60), 2) +
+        this.util.fillZero(~~((duration / 60) % 60)) +
         ":" +
-        this.util.fillZero(duration % 60, 2)
+        this.util.fillZero(duration % 60)
       );
-    },
-    lyricTop: function() {
-      return "-" + ~~this.controls.line * 2 + "em";
-    },
-    bgStyle: function() {
-      return "url(" + this.song.picUrl + ")";
     }
   },
   created() {
     const id = this.$route.params.id;
-    console.log("[PARAMS] detail?id=" + id);
+    console.log(`[PARAMS] detail?id=${id}`);
     this.controls.ids = id.split(",");
     this.$_GetDetail(this.controls.ids[0]);
   },
@@ -95,9 +89,7 @@ export default {
   },
   watch: {
     "controls.duration"() {
-      if (this.controls.duration > 0) {
-        console.warn("Can NOT autoplay on mobile, wait to find another way.");
-      }
+      this.controls.duration > 0 && this.$_SongPlay();
     },
     "controls.currentTime"() {
       if (this.controls.currentTime >= this.controls.duration) {
@@ -121,7 +113,7 @@ export default {
       const currentTime = this.$refs.audio.currentTime;
       this.controls.duration = duration;
       this.controls.currentTime = currentTime;
-      const lrc = [].concat(this.song.lyric);
+      const lrc = [...this.song.lyric];
       lrc.push({ time: duration * 1e3 });
       if (currentTime < lrc[0].time / 1e3) {
         return 1e-3;
@@ -137,8 +129,16 @@ export default {
     },
     $_SongPlay() {
       if (this.controls.duration > 0) {
-        this.$refs.audio.play();
-        this.controls.isPaused = !1;
+        this.$refs.audio
+          .play()
+          .then(() => {
+            this.controls.isPaused = !1;
+          })
+          .catch(err => {
+            console.warn(
+              "Can NOT autoplay on mobile, wait to find another way."
+            );
+          });
       }
     },
     $_SongPause() {
@@ -168,8 +168,8 @@ export default {
           /(\[\d{2,}:\d{2}(?:\.\d{2,3})?]){2,}(.*)(\n)/g,
           (match, _, txt) => {
             return match
-              .replace(txt + "\n", "")
-              .replace(/(\[\d{2,}:\d{2}(?:\.\d{2,3})?])/g, "$1" + txt + "\n");
+              .replace(`${txt}\n`, "")
+              .replace(/(\[\d{2,}:\d{2}(?:\.\d{2,3})?])/g, `$1${txt}\n`);
           }
         )
         .split("\n");
@@ -194,7 +194,7 @@ export default {
     $_GetDetail(id) {
       const that = this;
       that.axios
-        .get(that.util.baseUrl + "/detail?id=" + id)
+        .get(`${that.util.baseUrl}/detail?id=${id}`)
         .then(res => {
           console.log(res.data);
           that.song = res.data;

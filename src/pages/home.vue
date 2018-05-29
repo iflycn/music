@@ -7,7 +7,7 @@
       <li><router-link :to="controlRandom">随机播放</router-link></li>
     </ul>
     <ul class="songs_list">
-      <li v-for="(v, i) in slist" :key="i"><router-link :to="'/detail/' + v.id">
+      <li v-for="(v, i) in slist" :key="i"><router-link :to="`/detail/${v.id}`">
         <span>{{ $_CompleteNum(i) }}</span>
         <h4>{{ v.name }}</h4>
         <small>{{ v.artist }} - {{ v.album }}</small>
@@ -33,16 +33,16 @@ export default {
   },
   computed: {
     controlOrder: function() {
-      return "/detail/" + this.$_GetIds();
+      return `/detail/${this.$_GetIds()}`;
     },
     controlRandom: function() {
-      return "/detail/" + this.util.arrShuffle(this.$_GetIds());
+      return `/detail/${this.util.arrShuffle(this.$_GetIds())}`;
     }
   },
   methods: {
     $_CompleteNum(i) {
       i += 1;
-      return this.util.fillZero(i, 2);
+      return this.util.fillZero(i);
     },
     $_GetIds() {
       const ids = [];
@@ -54,7 +54,7 @@ export default {
     $_GetList() {
       const that = this;
       that.axios
-        .get(that.util.baseUrl + "/slist")
+        .get(`${that.util.baseUrl}/slist`)
         .then(res => {
           console.log(res.data);
           that.slist = res.data;
@@ -96,11 +96,16 @@ export default {
   padding: 1em 2em;
   font-size: 0.8em;
   color: #888;
-  background-image: url(../assets/icon_play_order.png);
   background-repeat: no-repeat;
   background-position: 0 center;
   background-size: auto 1em;
   background-origin: content;
+}
+.songs_control li:nth-child(1) a {
+  background-image: url(../assets/icon_play_order.png);
+}
+.songs_control li:nth-child(2) a {
+  background-image: url(../assets/icon_play_random.png);
 }
 .songs_list {
   background: url(../assets/slist_bg.png) 0 bottom no-repeat;
