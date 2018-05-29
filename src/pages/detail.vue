@@ -163,25 +163,33 @@ export default {
       this.$_GetDetail(this.controls.ids[0]);
     },
     $_FormatLrc(lrc) {
-      const lines = lrc.split("\n");
+      lrc = lrc
+        .replace(
+          /(\[\d{2,}:\d{2}(?:\.\d{2,3})?]){2,}(.*)(\n)/g,
+          (match, _, txt) => {
+            return match
+              .replace(txt + "\n", "")
+              .replace(/(\[\d{2,}:\d{2}(?:\.\d{2,3})?])/g, "$1" + txt + "\n");
+          }
+        )
+        .split("\n");
       const timeExp = /\[(\d{2,}):(\d{2})(?:\.(\d{2,3}))?]/g;
-      lrc = [];
-      for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        let result = timeExp.exec(line);
-        let txt = line.replace(timeExp, "").trim();
+      const lines = [];
+      for (let i = 0; i < lrc.length; i++) {
+        const result = timeExp.exec(lrc[i]);
+        const txt = lrc[i].replace(timeExp, "").trim();
         if (result && txt) {
-          lrc.push({
+          lines.push({
             time:
               result[1] * 60 * 1000 + result[2] * 1000 + (result[3] || 0) * 10,
             txt
           });
         }
       }
-      lrc.sort((a, b) => {
+      lines.sort((a, b) => {
         return a.time - b.time;
       });
-      return lrc;
+      return lines;
     },
     $_GetDetail(id) {
       const that = this;
