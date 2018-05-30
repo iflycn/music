@@ -302,7 +302,7 @@ export default {
 }
 .song_range {
   position: relative;
-  margin-top: 10px;
+  margin-top: 6px;
   width: 100%;
   height: 20px;
 }
@@ -338,11 +338,11 @@ export default {
   border-radius: 3px;
 }
 .lyric {
-  margin: 30px auto 0 auto;
+  margin: 24px auto 10px auto;
   width: 248px;
 }
 .lyric h3 {
-  margin-bottom: 0.8em;
+  margin-bottom: 10px;
   font-weight: normal;
   text-align: center;
   overflow: hidden;
