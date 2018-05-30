@@ -29,11 +29,12 @@ npm run build
 - [x] 进度条拖动控制，完成度 70%
 - [x] 歌单连续播放，完成度 75%
 - [x] 解析复杂 LRC 文件，完成度 80%
-- [ ] 歌单显示方式切换，待完成
+- [x] 保存播放历史，完成度 85%
 - [ ] 播放器抽象为组件，待完成
 - [x] 修复 BUG：控制播放时，微信意外弹出图片浏览界面
 - [ ] 已知 BUG：因移动端限制，音乐无法自动播放
 
 ## 参考资料
+- [https://cn.vuejs.org/v2/guide/](https://cn.vuejs.org/v2/guide/)
 - [http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp](http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp)
 - [https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement)

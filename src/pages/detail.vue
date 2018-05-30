@@ -85,6 +85,7 @@ export default {
     this.$_GetDetail(this.controls.ids[0]);
   },
   destroyed() {
+    localStorage.history = this.controls.ids.join(",");
     clearInterval(this.controls.timer);
   },
   watch: {
@@ -135,9 +136,7 @@ export default {
             this.controls.isPaused = !1;
           })
           .catch(err => {
-            console.warn(
-              "Can NOT autoplay on mobile, wait to find another way."
-            );
+            console.warn(err);
           });
       }
     },

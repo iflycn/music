@@ -2,9 +2,10 @@
   <div class="home">
     <loading v-if="slist.length === 0"></loading>
     <h1 class="songs_title">推荐歌单</h1>
-    <ul v-if="slist.length > 1" class="songs_control">
+    <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_history: history }">
       <li><router-link :to="controlOrder">顺序播放</router-link></li>
       <li><router-link :to="controlRandom">随机播放</router-link></li>
+      <li v-if="history"><router-link :to="controlHistory">播放历史</router-link></li>
     </ul>
     <ul class="songs_list">
       <li v-for="(v, i) in slist" :key="i"><router-link :to="`/detail/${v.id}`">
@@ -25,10 +26,12 @@ export default {
   components: { loading },
   data() {
     return {
-      slist: []
+      slist: [],
+      history: null
     };
   },
   created() {
+    this.history = localStorage.history;
     this.$_GetList();
   },
   computed: {
@@ -37,6 +40,9 @@ export default {
     },
     controlRandom: function() {
       return `/detail/${this.util.arrShuffle(this.$_GetIds())}`;
+    },
+    controlHistory: function(){
+      return `/detail/${this.history}`;
     }
   },
   methods: {
@@ -91,9 +97,12 @@ export default {
   border-right: 0;
   background: #fff;
 }
+.songs_history li{
+  width: 33.33%;
+}
 .songs_control a {
   display: inline-block;
-  padding: 1em 2em;
+  padding: 1em 0 1em 2em;
   font-size: 0.8em;
   color: #888;
   background-repeat: no-repeat;
@@ -106,6 +115,9 @@ export default {
 }
 .songs_control li:nth-child(2) a {
   background-image: url(../assets/icon_play_random.png);
+}
+.songs_control li:nth-child(3) a {
+  background-image: url(../assets/icon_play_history.png);
 }
 .songs_list {
   background: url(../assets/slist_bg.png) 0 bottom no-repeat;

@@ -1,9 +1,12 @@
 <template>
   <div class="main">
     <transition name="fade-in" mode="out-in">
+      <!-- 在组件化并引入 Vuex 前，因播放历史问题暂不启用缓存，待完成
       <keep-alive include="home">
         <router-view></router-view>
       </keep-alive>
+      -->
+      <router-view></router-view>
     </transition>
   </div>
 </template>
