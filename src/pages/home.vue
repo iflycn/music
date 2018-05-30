@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <loading v-if="slist.length === 0"></loading>
-    <h1 class="songs_title" :class="{ songs_fixed: scrollTop >= 75}">推荐歌单</h1>
-    <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_history: history, songs_fixed: scrollTop >= 75}">
+    <h1 class="songs_title" :class="{ songs_fixed: scrollTop > 72}">推荐歌单</h1>
+    <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_history: history, songs_fixed: scrollTop > 72}">
       <li><router-link :to="controlOrder">顺序播放</router-link></li>
       <li><router-link :to="controlRandom">随机播放</router-link></li>
       <li v-if="history"><router-link :to="controlHistory">播放历史</router-link></li>
@@ -86,7 +86,7 @@ export default {
   border-left: 3px solid #df3436;
 }
 h1.songs_fixed {
-  margin-bottom: 1.8em;
+  margin-bottom: 60px;
 }
 ul.songs_fixed {
   position: fixed;
