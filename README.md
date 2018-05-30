@@ -18,7 +18,125 @@ npm run dev
 npm run build
 ```
 
-## 开发计划
+## 一些细节代码
+
+### 路由变更时返回页面顶部
+```javascript
+// 路由组件
+export default new Router({
+  scrollBehavior() {
+    return { x: 0, y: 0 }
+  }
+})
+```
+
+### 在 JS 中使用将被打包的静态资源
+```javascript
+export default {
+  data() {
+    return {
+      image: require("../assets/img.png"),
+    };
+  }
+};
+```
+
+### 获取路由参数
+```html
+<!-- 带参数的路由链接 -->
+<router-link to="/page/1">页面</router-link>
+```
+```javascript
+// 路由组件
+export default new Router({
+  routes: [{
+    path: "/page/:id",
+    name: "page",
+    component: page
+  }]
+})
+```
+```javascript
+// 接收路由参数的组件
+export default {
+  data() {
+    return {
+      id: ""
+    };
+  },
+  created() {
+    this.id = this.$route.params.id;
+  },
+  watch: {
+    $route() {
+      this.id = this.$route.params.id;
+    }
+  }
+};
+```
+
+### 使用 axios 获取数据
+```javascript
+export default {
+  data() {
+    return {
+      arr: []
+    };
+  },
+  created() {
+    this.$_GetAjax();
+  },
+  methods: {
+    $_GetAjax() {
+      const that = this;
+      that.axios
+        .get("interface/address")
+        .then(res => {
+          console.table(res.data);
+          that.arr = res.data;
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  }
+};
+```
+
+### 格式化 LRC 歌词
+```javascript
+function formatLrc(lrc) {
+  lrc = lrc
+    .replace(
+      /(\[\d{2,}:\d{2}(?:\.\d{2,3})?]){2,}(.*)(\n)/g,
+      (match, _, txt) => {
+        return match
+          .replace(`${txt}\n`, "")
+          .replace(/(\[\d{2,}:\d{2}(?:\.\d{2,3})?])/g, `$1${txt}\n`);
+      }
+    )
+    .split("\n");
+  const timeExp = /\[(\d{2,}):(\d{2})(?:\.(\d{2,3}))?]/g;
+  const lines = [];
+  for (let i = 0; i < lrc.length; i++) {
+    const result = timeExp.exec(lrc[i]);
+    const txt = lrc[i].replace(timeExp, "").trim();
+    if (result && txt) {
+      lines.push({
+        time:
+          result[1] * 60 * 1000 + result[2] * 1000 + (result[3] || 0) * 10,
+        txt
+      });
+    }
+  }
+  lines.sort((a, b) => {
+    return a.time - b.time;
+  });
+  return lines;
+}
+```
+
+## 开发历史
 - [x] 开个坑，有空就会填一填
 - [x] 项目开始搭建，完成度 10%
 - [x] 完成播放器样式，完成度 25%
@@ -30,8 +148,10 @@ npm run build
 - [x] 歌单连续播放，完成度 75%
 - [x] 解析复杂 LRC 文件，完成度 80%
 - [x] 保存播放历史，完成度 85%
-- [ ] 播放器抽象为公用组件，待完成
 - [x] 修复 BUG：控制播放时，微信意外弹出图片浏览界面
+
+## TODO
+- [ ] 播放器抽象为公用组件，待完成
 - [ ] 已知 BUG：因移动端限制，音乐无法自动播放
 
 ## 参考资料
