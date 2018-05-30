@@ -3,7 +3,7 @@
     <loading v-if="controls.duration === 0"></loading>
     <div class="song_wrap">
       <div class="song_disc" :class="{ song_needle: controls.isPaused }" @click="$_SongToggle()">
-        <div class="song_turn circling" :class="{ paused: controls.isPaused }">
+        <div class="song_turn song_rotate" :class="{ song_paused: controls.isPaused }">
           <img :src="song.picUrl" class="song_cover">
         </div>
         <span class="song_play" :class="{ song_pause: !controls.isPaused || controls.duration === 0 }"></span>
@@ -56,26 +56,17 @@ export default {
     rangeStyle: function() {
       const percent =
         ~~(this.controls.currentTime / this.controls.duration * 100) + 1;
-      return (
-        "linear-gradient(to right, hsla(0, 0%, 100%, 0.2), #fff " +
-        percent +
-        "%, hsla(0, 0%, 100%, 0.2) " +
-        percent +
-        "%, hsla(0, 0%, 100%, 0.2))"
-      );
+      const color = "rgba(255, 255, 255, 0.2)";
+      return `linear-gradient(to right, ${color}, #fff ${percent}%, ${color} ${percent}%, ${color})`;
     },
     rangeTxt: function() {
       const currentTime = ~~this.controls.currentTime;
       const duration = ~~this.controls.duration;
-      return (
-        this.util.fillZero(~~((currentTime / 60) % 60)) +
-        ":" +
-        this.util.fillZero(currentTime % 60) +
-        "/" +
-        this.util.fillZero(~~((duration / 60) % 60)) +
-        ":" +
-        this.util.fillZero(duration % 60)
-      );
+      return `${this.util.fillZero(
+        ~~((currentTime / 60) % 60)
+      )}:${this.util.fillZero(currentTime % 60)}/${this.util.fillZero(
+        ~~((duration / 60) % 60)
+      )}:${this.util.fillZero(duration % 60)}`;
     }
   },
   created() {
@@ -206,32 +197,146 @@ export default {
 };
 </script>
 
-<style scoped>
-.circling {
-  -webkit-animation: circling 20s infinite linear;
-  animation: circling 20s infinite linear;
-}
-.paused {
-  -webkit-animation-play-state: paused;
-  animation-play-state: paused;
-}
-@keyframes circling {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(1turn);
-    transform: rotate(1turn);
+<style lang="less" scoped>
+@assets: "../assets/";
+@base-color: #fff;
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
   }
 }
 
 .detail {
   position: relative;
   width: 100%;
-  color: #fff;
+  color: @base-color;
   background: transparent;
   overflow: hidden;
+}
+.song_wrap {
+  padding-top: 63px;
+  .song_disc {
+    position: relative;
+    margin: 0 auto;
+    width: 248px;
+    height: 248px;
+    background-image: url("@{assets}disc_plus.png");
+    background-size: 100% 100%;
+    &:after {
+      content: " ";
+      position: absolute;
+      top: -71px;
+      left: 107px;
+      width: 84px;
+      height: 128px;
+      background-image: url("@{assets}disc_needle.png");
+      background-size: 100% 100%;
+      transform-origin: 15.15% 6.18%;
+      transition: 0.2s;
+    }
+  }
+  .song_needle {
+    &:after {
+      transform: rotate(-24deg);
+    }
+  }
+  .song_turn {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-image: url("@{assets}disc_light.png");
+    background-size: 100% 100%;
+  }
+  .song_rotate {
+    animation: rotate 20s infinite linear;
+  }
+  .song_paused {
+    animation-play-state: paused;
+  }
+  .song_cover {
+    padding: 48px;
+    width: 152px;
+    height: 152px;
+    border-radius: 50%;
+  }
+  .song_play {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("@{assets}icon_play.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50px 50px;
+    z-index: 9;
+  }
+  .song_pause {
+    opacity: 0.01;
+  }
+}
+.song_range {
+  position: relative;
+  margin-top: 6px;
+  width: 100%;
+  height: 20px;
+  small {
+    position: absolute;
+    top: -0.3em;
+    right: 0.6em;
+    font-size: 0.6em;
+    color: fade(@base-color, 60%);
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    border-radius: 2px;
+    background: fade(@base-color, 20%);
+    &:focus {
+      outline: none;
+    }
+    &::-webkit-slider-runnable-track {
+      height: 1px;
+      border-radius: 50%;
+    }
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      margin-top: -2px;
+      height: 5px;
+      width: 10px;
+      background: @base-color;
+      border-radius: 3px;
+    }
+  }
+}
+.lyric {
+  margin: 24px auto 10px auto;
+  width: 248px;
+  h3 {
+    margin-bottom: 10px;
+    font-weight: normal;
+    text-align: center;
+    overflow: hidden;
+  }
+  .lyric_txt {
+    height: 6em;
+    overflow: hidden;
+    ul,
+    li {
+      transition: 0.5s;
+    }
+    li {
+      height: 2em;
+      line-height: 2em;
+      color: fade(@base-color, 60%);
+      text-align: center;
+      overflow: hidden;
+      &.hover {
+        color: @base-color;
+      }
+    }
+  }
 }
 .song_bg {
   position: fixed;
@@ -246,147 +351,28 @@ export default {
   filter: blur(24px) brightness(0.6);
   z-index: -1;
 }
-.song_wrap {
-  padding-top: 63px;
-}
-.song_disc {
-  position: relative;
-  margin: 0 auto;
-  width: 248px;
-  height: 248px;
-  background-image: url(../assets/disc_plus.png);
-  background-size: 100% 100%;
-}
-.song_disc:after {
-  content: " ";
-  position: absolute;
-  top: -71px;
-  left: 107px;
-  width: 84px;
-  height: 128px;
-  background-image: url(../assets/disc_needle.png);
-  background-size: 100% 100%;
-  transform-origin: 15.15% 6.18%;
-  transition: 0.2s;
-}
-.song_needle:after {
-  transform: rotate(-24deg);
-}
-.song_turn {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-image: url(../assets/disc_light.png);
-  background-size: 100% 100%;
-}
-.song_cover {
-  padding: 48px;
-  width: 152px;
-  height: 152px;
-  border-radius: 50%;
-}
-.song_play {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url(../assets/icon_play.png);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 50px 50px;
-  z-index: 9;
-}
-.song_pause {
-  opacity: 0.01;
-}
-.song_range {
-  position: relative;
-  margin-top: 6px;
-  width: 100%;
-  height: 20px;
-}
-.song_range small {
-  position: absolute;
-  top: -0.3em;
-  right: 0.6em;
-  font-size: 0.6em;
-  color: hsla(0, 0%, 100%, 0.6);
-}
-.song_range input[type="range"] {
-  -webkit-appearance: none;
-  width: 100%;
-  border-radius: 2px;
-  background: hsla(0, 0%, 100%, 0.2);
-}
-.song_range input[type="range"]:focus {
-  outline: none;
-}
-.song_range input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-}
-.song_range input[type="range"]::-webkit-slider-runnable-track {
-  height: 1px;
-  border-radius: 50%;
-}
-.song_range input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  margin-top: -2px;
-  height: 5px;
-  width: 10px;
-  background: #fff;
-  border-radius: 3px;
-}
-.lyric {
-  margin: 24px auto 10px auto;
-  width: 248px;
-}
-.lyric h3 {
-  margin-bottom: 10px;
-  font-weight: normal;
-  text-align: center;
-  overflow: hidden;
-}
-.lyric_txt {
-  height: 6em;
-  overflow: hidden;
-}
-.lyric_txt ul,
-.lyric_txt li {
-  transition: 0.5s;
-}
-.lyric_txt li {
-  height: 2em;
-  line-height: 2em;
-  color: hsla(0, 0%, 100%, 0.6);
-  text-align: center;
-  overflow: hidden;
-}
-.lyric_txt li.hover {
-  color: #fff;
-}
 
 @media screen and (min-width: 360px) {
   .song_wrap {
     padding-top: 70px;
-  }
-  .song_disc:after {
-    top: -79px;
-    left: 133px;
-    width: 96px;
-    height: 146px;
-  }
-  .song_disc {
-    width: 296px;
-    height: 296px;
-  }
-  .song_cover {
-    padding: 56px;
-    width: 184px;
-    height: 184px;
-  }
-  .song_play {
-    background-size: 56px 56px;
+    .song_disc {
+      width: 296px;
+      height: 296px;
+      &:after {
+        top: -79px;
+        left: 133px;
+        width: 96px;
+        height: 146px;
+      }
+    }
+    .song_cover {
+      padding: 56px;
+      width: 184px;
+      height: 184px;
+    }
+    .song_play {
+      background-size: 56px 56px;
+    }
   }
   .lyric {
     width: 296px;
@@ -396,24 +382,24 @@ export default {
 @media screen and (min-width: 414px) {
   .song_wrap {
     padding-top: 80px;
-  }
-  .song_disc:after {
-    top: -90px;
-    left: 150px;
-    width: 110px;
-    height: 167px;
-  }
-  .song_disc {
-    width: 342px;
-    height: 342px;
-  }
-  .song_cover {
-    padding: 65px;
-    width: 212px;
-    height: 212px;
-  }
-  .song_play {
-    background-size: 66px 66px;
+    .song_disc {
+      width: 342px;
+      height: 342px;
+      &:after {
+        top: -90px;
+        left: 150px;
+        width: 110px;
+        height: 167px;
+      }
+    }
+    .song_cover {
+      padding: 65px;
+      width: 212px;
+      height: 212px;
+    }
+    .song_play {
+      background-size: 66px 66px;
+    }
   }
   .lyric {
     width: 342px;

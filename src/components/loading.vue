@@ -14,7 +14,15 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+@main-color: #df3436;
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 div {
   position: fixed;
   top: 0;
@@ -23,29 +31,24 @@ div {
   height: 100%;
   background: transparent;
   z-index: 9999;
-}
-div span {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 42px;
-  height: 42px;
-  transform: translate(-50%, -50%);
-}
-div svg {
-  width: 100%;
-  height: 100%;
-  animation: rotate 2s linear infinite;
-}
-div circle {
-  stroke: #df3436;
-  stroke-width: 2;
-  stroke-dasharray: 90, 200;
-  stroke-linecap: round;
-}
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
+  span {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 42px;
+    height: 42px;
+    transform: translate(-50%, -50%);
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    animation: rotate 2s linear infinite;
+  }
+  circle {
+    stroke: @main-color;
+    stroke-width: 2;
+    stroke-dasharray: 90, 200;
+    stroke-linecap: round;
   }
 }
 </style>
