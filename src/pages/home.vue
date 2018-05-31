@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <loading v-if="slist.length === 0"></loading>
-    <h1 class="songs_title" :class="{ songs_title_fixed: scrollTop > 72}">推荐歌单</h1>
+    <h1 class="songs_title">推荐歌单</h1>
     <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_control_history: history, songs_control_fixed: scrollTop > 72}">
       <li><router-link :to="controlOrder">顺序播放</router-link></li>
       <li><router-link :to="controlRandom">随机播放</router-link></li>
@@ -62,12 +62,10 @@ export default {
       return ids;
     },
     $_GetList() {
-      const that = this;
-      that.axios
-        .get(`${that.util.baseUrl}/slist`)
+      this.axios
+        .get(`${this.util.baseUrl}/slist`)
         .then(res => {
-          // console.log(res.data);
-          that.slist = res.data;
+          this.slist = res.data;
         })
         .catch(err => {
           console.error(err);
@@ -85,16 +83,17 @@ export default {
 @border-color: #f0f0f0;
 
 .songs_title {
-  margin: 0.5em 0;
+  margin: 0.5em 0 60px 0;
   padding-left: 0.5em;
   font-size: 2em;
   font-weight: normal;
   border-left: 3px solid @main-color;
 }
-.songs_title_fixed {
-  margin-bottom: 60px;
-}
 .songs_control {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  width: 100%;
   &:after {
     content: " ";
     clear: both;
@@ -143,8 +142,6 @@ export default {
 .songs_control_fixed {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
 }
 .songs_list {
   background: url("@{assets}slist_bg.png") 0 bottom no-repeat;

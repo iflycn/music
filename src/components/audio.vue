@@ -1,0 +1,133 @@
+<template>
+  <audio ref="audio" :src="audio.song.url" preload></audio>
+</template>
+
+<script>
+import { mapState, mapGetters, mapMutations } from "vuex";
+
+export default {
+  name: "GAudio",
+  computed: {
+    ...mapState(["audio"]),
+    ...mapGetters(["formatLrc"])
+  },
+  created() {
+    this.$root.bus.$on("GAudioSongToggle", () => {
+      this.$_SongToggle();
+    });
+    this.$root.bus.$on("GAudioSongJump", () => {
+      this.$_SongJump();
+    });
+    this.$_Init();
+  },
+  destroyed() {
+    location.reload();
+  },
+  watch: {
+    $route() {
+      this.$_Init();
+    },
+    "audio.duration"() {
+      this.audio.duration > 0 && this.$_SongPlay();
+    },
+    "audio.currentTime"() {
+      if (this.audio.currentTime >= this.audio.duration) {
+        this.$_SongPause();
+        this.audio.ids.length > 1 && this.$_SongNext();
+      }
+    },
+    "audio.song.id"() {
+      clearInterval(this.audio.timer);
+      this.setAudioTimer(
+        setInterval(() => {
+          this.setAudioLine(this.$_StartTimer());
+        }, 1e3)
+      );
+    }
+  },
+  methods: {
+    ...mapMutations([
+      "setAudioIds",
+      "setAudioTimer",
+      "setAudioIsPaused",
+      "setAudioLine",
+      "setAudioDuration",
+      "setAudioCurrentTime",
+      "setAudioSong"
+    ]),
+    $_StartTimer() {
+      const duration = this.$refs.audio.duration;
+      const currentTime = this.$refs.audio.currentTime;
+      this.setAudioDuration(duration);
+      this.setAudioCurrentTime(currentTime);
+      const lrc = [...this.formatLrc];
+      lrc.push({ time: duration * 1e3 });
+      if (currentTime < lrc[0].time / 1e3) {
+        return 1e-3;
+      }
+      for (let i = 0; i < lrc.length - 1; i++) {
+        if (
+          currentTime >= lrc[i].time / 1e3 &&
+          currentTime < lrc[i + 1].time / 1e3
+        ) {
+          return i;
+        }
+      }
+    },
+    $_SongPlay() {
+      if (this.audio.duration > 0) {
+        this.$refs.audio
+          .play()
+          .then(() => {
+            this.setAudioIsPaused(!1);
+          })
+          .catch(err => {
+            console.warn(err);
+          });
+      }
+    },
+    $_SongPause() {
+      this.$refs.audio.pause();
+      this.setAudioIsPaused(!0);
+    },
+    $_SongToggle() {
+      this.audio.isPaused ? this.$_SongPlay() : this.$_SongPause();
+    },
+    $_SongLoad() {
+      this.$refs.audio.load();
+    },
+    $_SongJump() {
+      if (this.audio.currentTime < this.audio.duration) {
+        this.$refs.audio.currentTime = this.audio.currentTime;
+      }
+    },
+    $_SongNext() {
+      this.setAudioDuration(0);
+      this.audio.ids.splice(0, 1);
+      this.audio.ids.push(this.audio.song.id);
+      this.$_GetDetail(this.audio.ids[0]);
+    },
+    $_GetDetail(id) {
+      this.axios
+        .get(`${this.util.baseUrl}/detail?id=${id}`)
+        .then(res => {
+          this.setAudioSong(res.data);
+          localStorage.history = this.audio.ids.join(",");
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    },
+    $_Init() {
+      const id = this.$route.params.id;
+      if (id) {
+        if (this.audio.ids.join(",").indexOf(id) === -1) {
+          this.setAudioLine(1e-3);
+        }
+        this.setAudioIds(id.split(","));
+        this.$_GetDetail(this.audio.ids[0]);
+      }
+    }
+  }
+};
+</script>

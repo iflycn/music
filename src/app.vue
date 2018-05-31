@@ -1,19 +1,18 @@
 <template>
   <div class="main">
     <transition name="fade-in" mode="out-in">
-      <!-- 在组件化并引入 Vuex 前，因播放历史问题暂不启用缓存，待完成
-      <keep-alive include="home">
-        <router-view></router-view>
-      </keep-alive>
-      -->
       <router-view></router-view>
     </transition>
+    <g-audio></g-audio>
   </div>
 </template>
 
 <script>
+import GAudio from "@/components/audio";
+
 export default {
   name: "app",
+  components: { GAudio },
   beforeCreate() {
     console.log(
       "%c Gito Player @ Github.com/iflycn/music",

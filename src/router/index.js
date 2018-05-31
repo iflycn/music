@@ -14,8 +14,5 @@ export default new Router({
     path: "/detail/:id",
     name: "detail",
     component: detail
-  }],
-  scrollBehavior() {
-    return { x: 0, y: 0 }
-  }
+  }]
 })

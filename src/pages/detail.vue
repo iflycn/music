@@ -1,68 +1,54 @@
 <template>
   <div class="detail">
-    <loading v-if="controls.duration === 0"></loading>
+    <g-loading v-if="audio.duration === 0"></g-loading>
     <div class="song_wrap">
-      <div class="song_disc" :class="{ song_needle: controls.isPaused }" @click="$_SongToggle()">
-        <div class="song_turn song_rotate" :class="{ song_paused: controls.isPaused }">
-          <img :src="song.picUrl" class="song_cover">
+      <div class="song_disc" :class="{ song_needle: audio.isPaused }" @click="$root.bus.$emit('GAudioSongToggle')">
+        <div class="song_turn song_rotate" :class="{ song_paused: audio.isPaused }">
+          <img :src="audio.song.picUrl" class="song_cover">
         </div>
-        <span class="song_play" :class="{ song_pause: !controls.isPaused || controls.duration === 0 }"></span>
+        <span class="song_play" :class="{ song_pause: !audio.isPaused || audio.duration === 0 }"></span>
       </div>
     </div>
-    <div v-show="song.name && song.artist" class="song_range">
-      <audio ref="audio" :src="song.url" preload></audio>
+    <div v-show="audio.song.name && audio.song.artist" class="song_range">
       <small>{{ rangeTxt }}</small>
-      <input type="range" v-model="controls.currentTime" :max="controls.duration" :style="{ background: rangeStyle }" @input="$_SongJump()">
+      <input type="range" v-model="audio.currentTime" :max="audio.duration" :style="{ background: rangeStyle }" @input="$root.bus.$emit('GAudioSongJump')">
     </div>
-    <div v-show="song.name && song.artist" class="lyric" :style="{ height: `${lyricHeight}px` }">
-      <h3>{{ song.name }} - {{ song.artist }}</h3>
+    <div v-show="audio.song.name && audio.song.artist" class="lyric" :style="{ height: `${lyricHeight}px` }">
+      <h3>{{ audio.song.name }} - {{ audio.song.artist }}</h3>
       <div class="lyric_txt">
-        <ul :style="{ marginTop: `-${~~this.controls.line * 2}em`}">
-          <li v-for="(v, i) in song.lyric" :key="i" :class="{ hover: controls.line === i }">{{ v.txt }}</li>
+        <ul :style="{ marginTop: `-${~~audio.line * 2}em`}">
+          <li v-for="(v, i) in formatLrc" :key="i" :class="{ hover: audio.line === i }">{{ v.txt }}</li>
         </ul>
       </div>
     </div>
-    <div class="song_bg" :style="{ backgroundImage: `url(${song.picUrl})` }"></div>
+    <div class="song_bg" :style="{ backgroundImage: `url(${audio.song.picUrl})` }"></div>
   </div>
 </template>
 
 <script>
-import loading from "@/components/loading";
+import GLoading from "@/components/loading";
+import { mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
   name: "detail",
-  components: { loading },
+  components: { GLoading },
   data() {
     return {
-      lyricHeight: 0,
-      controls: {
-        ids: [],
-        timer: -1,
-        isPaused: !0,
-        line: 1e-3,
-        duration: 0,
-        currentTime: 0
-      },
-      song: {
-        id: -1,
-        name: null,
-        artist: null,
-        url: null,
-        picUrl: require("../assets/disc_default.png"),
-        lyric: []
-      }
+      lyricHeight: 0
     };
   },
   computed: {
+    ...mapState(["audio"]),
+    ...mapGetters(["formatLrc"]),
     rangeStyle: function() {
       const percent =
-        ~~(this.controls.currentTime / this.controls.duration * 100) + 1;
+        ~~(this.audio.currentTime / this.audio.duration * 100) + 1;
       const color = "rgba(255, 255, 255, 0.2)";
       return `linear-gradient(to right, ${color}, #fff ${percent}%, ${color} ${percent}%, ${color})`;
     },
     rangeTxt: function() {
-      const currentTime = ~~this.controls.currentTime;
-      const duration = ~~this.controls.duration;
+      const currentTime = ~~this.audio.currentTime;
+      const duration = ~~this.audio.duration;
       return `${this.util.fillZero(
         ~~((currentTime / 60) % 60)
       )}:${this.util.fillZero(currentTime % 60)}/${this.util.fillZero(
@@ -70,134 +56,9 @@ export default {
       )}:${this.util.fillZero(duration % 60)}`;
     }
   },
-  created() {
-    const id = this.$route.params.id;
-    // console.log(`[PARAMS] detail?id=${id}`);
-    this.controls.ids = id.split(",");
-    this.$_GetDetail(this.controls.ids[0]);
-  },
   mounted() {
     const height = screen.availHeight - document.body.offsetHeight - 150;
-    this.lyricHeight = height;
-  },
-  destroyed() {
-    localStorage.history = this.controls.ids.join(",");
-    clearInterval(this.controls.timer);
-  },
-  watch: {
-    "controls.duration"() {
-      this.controls.duration > 0 && this.$_SongPlay();
-    },
-    "controls.currentTime"() {
-      if (this.controls.currentTime >= this.controls.duration) {
-        this.$_SongPause();
-        this.controls.ids.length > 1 && this.$_SongNext();
-      }
-    },
-    "song.id"() {
-      if (this.song.lyric.length > 0) {
-        this.song.lyric = this.$_FormatLrc(this.song.lyric);
-      }
-      clearInterval(this.controls.timer);
-      this.controls.timer = setInterval(() => {
-        this.controls.line = this.$_StartTimer();
-      }, 1e3);
-    }
-  },
-  methods: {
-    $_StartTimer() {
-      const duration = this.$refs.audio.duration;
-      const currentTime = this.$refs.audio.currentTime;
-      this.controls.duration = duration;
-      this.controls.currentTime = currentTime;
-      const lrc = [...this.song.lyric];
-      lrc.push({ time: duration * 1e3 });
-      if (currentTime < lrc[0].time / 1e3) {
-        return 1e-3;
-      }
-      for (let i = 0; i < lrc.length - 1; i++) {
-        if (
-          currentTime >= lrc[i].time / 1e3 &&
-          currentTime < lrc[i + 1].time / 1e3
-        ) {
-          return i;
-        }
-      }
-    },
-    $_SongPlay() {
-      if (this.controls.duration > 0) {
-        this.$refs.audio
-          .play()
-          .then(() => {
-            this.controls.isPaused = !1;
-          })
-          .catch(err => {
-            console.warn(err);
-          });
-      }
-    },
-    $_SongPause() {
-      this.$refs.audio.pause();
-      this.controls.isPaused = !0;
-    },
-    $_SongToggle() {
-      this.controls.isPaused ? this.$_SongPlay() : this.$_SongPause();
-    },
-    $_SongLoad() {
-      this.$refs.audio.load();
-    },
-    $_SongJump() {
-      if (this.controls.currentTime < this.controls.duration) {
-        this.$refs.audio.currentTime = this.controls.currentTime;
-      }
-    },
-    $_SongNext() {
-      this.controls.duration = 0;
-      this.controls.ids.splice(0, 1);
-      this.controls.ids.push(this.song.id);
-      this.$_GetDetail(this.controls.ids[0]);
-    },
-    $_FormatLrc(lrc) {
-      lrc = lrc
-        .replace(
-          /(\[\d{2,}:\d{2}(?:\.\d{2,3})?]){2,}(.*)(\n)/g,
-          (match, _, txt) => {
-            return match
-              .replace(`${txt}\n`, "")
-              .replace(/(\[\d{2,}:\d{2}(?:\.\d{2,3})?])/g, `$1${txt}\n`);
-          }
-        )
-        .split("\n");
-      const timeExp = /\[(\d{2,}):(\d{2})(?:\.(\d{2,3}))?]/g;
-      const lines = [];
-      for (let i = 0; i < lrc.length; i++) {
-        const result = timeExp.exec(lrc[i]);
-        const txt = lrc[i].replace(timeExp, "").trim();
-        if (result && txt) {
-          lines.push({
-            time:
-              result[1] * 60 * 1000 + result[2] * 1000 + (result[3] || 0) * 10,
-            txt
-          });
-        }
-      }
-      lines.sort((a, b) => {
-        return a.time - b.time;
-      });
-      return lines;
-    },
-    $_GetDetail(id) {
-      const that = this;
-      that.axios
-        .get(`${that.util.baseUrl}/detail?id=${id}`)
-        .then(res => {
-          // console.log(res.data);
-          that.song = res.data;
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    }
+    this.lyricHeight = height < 130 ? height + 190 : height;
   }
 };
 </script>
