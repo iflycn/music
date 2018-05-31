@@ -66,7 +66,7 @@ export default {
       that.axios
         .get(`${that.util.baseUrl}/slist`)
         .then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           that.slist = res.data;
         })
         .catch(err => {
@@ -84,11 +84,6 @@ export default {
 @less-color: #888;
 @border-color: #f0f0f0;
 
-.home {
-  background: url("@{assets}slist_bg.png") 0 bottom no-repeat;
-  background-size: 100% auto;
-  background-attachment: fixed;
-}
 .songs_title {
   margin: 0.5em 0;
   padding-left: 0.5em;
@@ -152,6 +147,9 @@ export default {
   width: 100%;
 }
 .songs_list {
+  background: url("@{assets}slist_bg.png") 0 bottom no-repeat;
+  background-size: 100% auto;
+  background-attachment: fixed;
   li {
     margin-left: 3em;
     padding: 0.4em 0;

@@ -10,10 +10,11 @@
       </div>
     </div>
     <div v-show="song.name && song.artist" class="song_range">
+      <audio ref="audio" :src="song.url" preload></audio>
       <small>{{ rangeTxt }}</small>
       <input type="range" v-model="controls.currentTime" :max="controls.duration" :style="{ background: rangeStyle }" @input="$_SongJump()">
     </div>
-    <div v-show="song.name && song.artist" class="lyric">
+    <div v-show="song.name && song.artist" class="lyric" :style="{ height: `${lyricHeight}px` }">
       <h3>{{ song.name }} - {{ song.artist }}</h3>
       <div class="lyric_txt">
         <ul :style="{ marginTop: `-${~~this.controls.line * 2}em`}">
@@ -21,7 +22,6 @@
         </ul>
       </div>
     </div>
-    <audio ref="audio" :src="song.url" preload></audio>
     <div class="song_bg" :style="{ backgroundImage: `url(${song.picUrl})` }"></div>
   </div>
 </template>
@@ -34,6 +34,7 @@ export default {
   components: { loading },
   data() {
     return {
+      lyricHeight: 0,
       controls: {
         ids: [],
         timer: -1,
@@ -71,9 +72,13 @@ export default {
   },
   created() {
     const id = this.$route.params.id;
-    console.log(`[PARAMS] detail?id=${id}`);
+    // console.log(`[PARAMS] detail?id=${id}`);
     this.controls.ids = id.split(",");
     this.$_GetDetail(this.controls.ids[0]);
+  },
+  mounted() {
+    const height = screen.availHeight - document.body.offsetHeight - 150;
+    this.lyricHeight = height;
   },
   destroyed() {
     localStorage.history = this.controls.ids.join(",");
@@ -186,7 +191,7 @@ export default {
       that.axios
         .get(`${that.util.baseUrl}/detail?id=${id}`)
         .then(res => {
-          console.log(res.data);
+          // console.log(res.data);
           that.song = res.data;
         })
         .catch(err => {
@@ -313,6 +318,8 @@ export default {
 .lyric {
   margin: 24px auto 10px auto;
   width: 248px;
+  min-height: 130px;
+  overflow: hidden;
   h3 {
     margin-bottom: 10px;
     font-weight: normal;
@@ -320,7 +327,6 @@ export default {
     overflow: hidden;
   }
   .lyric_txt {
-    height: 6em;
     overflow: hidden;
     ul,
     li {
