@@ -1,5 +1,5 @@
 <template>
-  <audio ref="audio" :src="audio.song.url" preload></audio>
+  <audio ref="audio" :src="audio.song.url || 'data:audio/mp3;base64,/+MYxAAAAANIAUAAAASEEB/jwOFM/0MM/90b/+RhST//w4NFwOjf///PZu////9lns5GFDv//l9GlUIEEIAAAgIg8Ir/JGq3/+MYxDsLIj5QMYcoAP0dv9HIjUcH//yYSg+CIbkGP//8w0bLVjUP///3Z0x5QCAv/yLjwtGKTEFNRTMuOTeqqqqqqqqqqqqq/+MYxEkNmdJkUYc4AKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'" preload></audio>
 </template>
 
 <script>
@@ -12,6 +12,9 @@ export default {
     ...mapGetters(["formatLrc"])
   },
   created() {
+    this.$root.bus.$on("GAudioFixAutoplay", () => {
+      this.$_FixAutoplay();
+    });
     this.$root.bus.$on("GAudioSongToggle", () => {
       this.$_SongToggle();
     });
@@ -55,6 +58,16 @@ export default {
       "setAudioCurrentTime",
       "setAudioSong"
     ]),
+    $_FixAutoplay() {
+      this.$refs.audio
+        .play()
+        .then(() => {
+          console.log("Autoplay has been repaired.");
+        })
+        .catch(err => {
+          console.warn(err);
+        });
+    },
     $_StartTimer() {
       const duration = this.$refs.audio.duration;
       const currentTime = this.$refs.audio.currentTime;

@@ -34,6 +34,7 @@ export default {
     };
   },
   created() {
+    window.addEventListener("touchend", this.$_FixAutoplay);
     window.addEventListener("scroll", () => {
       this.scrollTop = window.scrollY;
     });
@@ -53,6 +54,10 @@ export default {
     }
   },
   methods: {
+    $_FixAutoplay() {
+      this.$root.bus.$emit("GAudioFixAutoplay");
+      window.removeEventListener("touchend", this.$_FixAutoplay);
+    },
     $_CompleteNum(i) {
       i += 1;
       return this.util.fillZero(i);

@@ -144,9 +144,7 @@ function formatLrc(lrc) {
 - [x] 根据窗口大小计算歌词高度
 - [x] 播放器抽象为公用组件
 - [x] 歌单页显示播放状态
-
-## TODO
-- [ ] 已知 BUG：因移动端限制，音乐无法自动播放
+- [x] 修复 BUG：因移动端限制，音乐无法自动播放
 
 ## 参考资料
 - [https://cn.vuejs.org/v2/guide/](https://cn.vuejs.org/v2/guide/)

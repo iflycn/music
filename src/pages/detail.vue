@@ -6,7 +6,7 @@
         <div class="song_turn song_rotate" :class="{ song_paused: audio.isPaused }">
           <img :src="audio.song.picUrl" class="song_cover">
         </div>
-        <span class="song_play" :class="{ song_pause: !audio.isPaused || audio.duration === 0 }"></span>
+        <span v-show="audio.duration > 0" class="song_play" :class="{ song_pause: !audio.isPaused || audio.duration === 0 }"></span>
       </div>
     </div>
     <div v-show="rangeShow" class="song_range">
