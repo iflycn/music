@@ -6,7 +6,7 @@
     <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_control_history: history, songs_control_fixed: scrollTop > 72}">
       <li><router-link :to="controlOrder">顺序播放</router-link></li>
       <li><router-link :to="controlRandom">随机播放</router-link></li>
-      <li v-if="history"><router-link :to="controlHistory">播放历史</router-link></li>
+      <li v-if="history"><router-link :to="controlHistory">历史播放</router-link></li>
     </ul>
     <ul class="songs_list">
       <li v-for="(v, i) in slist" :key="i"><router-link :to="`/detail/${v.id}`">
@@ -47,10 +47,12 @@ export default {
       return `/detail/${this.$_GetIds()}`;
     },
     controlRandom: function() {
-      return `/detail/${this.util.arrShuffle(this.$_GetIds())}`;
+      if (this.audio.ids) {
+        return `/detail/${this.util.arrShuffle(this.$_GetIds())}`;
+      }
     },
     controlHistory: function() {
-      return `/detail/${this.history}`;
+      return `/detail/${this.audio.ids.join(",") || this.history}`;
     }
   },
   methods: {

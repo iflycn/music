@@ -145,8 +145,10 @@ function formatLrc(lrc) {
 - [x] 播放器抽象为公用组件
 - [x] 歌单页显示播放状态
 - [x] 修复 BUG：因移动端限制，音乐无法自动播放
+- [x] 修复 BUG：播放历史不能及时刷新
 
 ## 参考资料
 - [https://cn.vuejs.org/v2/guide/](https://cn.vuejs.org/v2/guide/)
+- [https://vuex.vuejs.org/](https://vuex.vuejs.org/)
 - [http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp](http://www.w3school.com.cn/tags/html_ref_audio_video_dom.asp)
 - [https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement)

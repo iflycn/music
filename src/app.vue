@@ -1,7 +1,9 @@
 <template>
   <div class="main">
     <transition name="fade-in" mode="out-in">
-      <router-view></router-view>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </transition>
     <g-audio></g-audio>
   </div>
