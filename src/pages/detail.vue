@@ -9,11 +9,11 @@
         <span class="song_play" :class="{ song_pause: !audio.isPaused || audio.duration === 0 }"></span>
       </div>
     </div>
-    <div v-show="audio.song.name && audio.song.artist" class="song_range">
+    <div v-show="rangeShow" class="song_range">
       <small>{{ rangeTxt }}</small>
       <input type="range" v-model="audio.currentTime" :max="audio.duration" :style="{ background: rangeStyle }" @input="$root.bus.$emit('GAudioSongJump')">
     </div>
-    <div v-show="audio.song.name && audio.song.artist" class="lyric" :style="{ height: `${lyricHeight}px` }">
+    <div v-show="rangeShow" class="lyric" :style="{ height: `${lyricHeight}px` }">
       <h3>{{ audio.song.name }} - {{ audio.song.artist }}</h3>
       <div class="lyric_txt">
         <ul :style="{ marginTop: `-${~~audio.line * 2}em`}">
@@ -27,7 +27,7 @@
 
 <script>
 import GLoading from "@/components/loading";
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 export default {
   name: "detail",
@@ -36,6 +36,10 @@ export default {
     return {
       lyricHeight: 0
     };
+  },
+  mounted() {
+    const height = screen.availHeight - document.body.offsetHeight - 146;
+    this.lyricHeight = height >= 130 ? height : 130;
   },
   computed: {
     ...mapState(["audio"]),
@@ -54,11 +58,12 @@ export default {
       )}:${this.util.fillZero(currentTime % 60)}/${this.util.fillZero(
         ~~((duration / 60) % 60)
       )}:${this.util.fillZero(duration % 60)}`;
+    },
+    rangeShow: function() {
+      return (
+        this.audio.song.name && this.audio.song.artist && this.lyricHeight > 0
+      );
     }
-  },
-  mounted() {
-    const height = screen.availHeight - document.body.offsetHeight - 150;
-    this.lyricHeight = height < 130 ? height + 190 : height;
   }
 };
 </script>
@@ -171,15 +176,14 @@ export default {
       margin-top: -2px;
       height: 5px;
       width: 10px;
-      background: @base-color;
       border-radius: 3px;
+      background: @base-color;
     }
   }
 }
 .lyric {
   margin: 24px auto 10px auto;
   width: 248px;
-  min-height: 130px;
   overflow: hidden;
   h3 {
     margin-bottom: 10px;

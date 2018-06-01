@@ -73,7 +73,7 @@ export default {
 export default {
   data() {
     return {
-      arr: []
+      data: {}
     };
   },
   created() {
@@ -81,12 +81,11 @@ export default {
   },
   methods: {
     $_GetAjax() {
-      const that = this;
-      that.axios
+      this.axios
         .get("interface/address")
         .then(res => {
           console.table(res.data);
-          that.arr = res.data;
+          this.data = res.data;
         })
         .catch(err => {
           console.error(err);
@@ -144,10 +143,9 @@ function formatLrc(lrc) {
 - [x] 保存播放历史
 - [x] 根据窗口大小计算歌词高度
 - [x] 播放器抽象为公用组件
+- [x] 歌单页显示播放状态
 
 ## TODO
-- [ ] 歌单页控制播放暂停
-- [ ] 歌单抽象为组件并缓存
 - [ ] 已知 BUG：因移动端限制，音乐无法自动播放
 
 ## 参考资料

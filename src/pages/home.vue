@@ -1,7 +1,8 @@
 <template>
   <div class="home">
-    <loading v-if="slist.length === 0"></loading>
+    <g-loading v-if="slist.length === 0"></g-loading>
     <h1 class="songs_title">推荐歌单</h1>
+    <router-link v-if="!this.audio.isPaused" :to="controlHistory" class="songs_playing"></router-link>
     <ul v-if="slist.length > 1" class="songs_control" :class="{ songs_control_history: history, songs_control_fixed: scrollTop > 72}">
       <li><router-link :to="controlOrder">顺序播放</router-link></li>
       <li><router-link :to="controlRandom">随机播放</router-link></li>
@@ -19,11 +20,12 @@
 </template>
 
 <script>
-import loading from "@/components/loading";
+import GLoading from "@/components/loading";
+import { mapState } from "vuex";
 
 export default {
   name: "home",
-  components: { loading },
+  components: { GLoading },
   data() {
     return {
       scrollTop: 0,
@@ -39,6 +41,7 @@ export default {
     this.$_GetList();
   },
   computed: {
+    ...mapState(["audio"]),
     controlOrder: function() {
       return `/detail/${this.$_GetIds()}`;
     },
@@ -88,6 +91,15 @@ export default {
   font-size: 2em;
   font-weight: normal;
   border-left: 3px solid @main-color;
+}
+.songs_playing {
+  position: absolute;
+  top: 26px;
+  right: 1em;
+  width: 20px;
+  height: 20px;
+  background-image: url("@{assets}icon_playing.gif");
+  background-size: 100% 100%;
 }
 .songs_control {
   position: absolute;
