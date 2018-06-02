@@ -147,6 +147,10 @@ function formatLrc(lrc) {
 - [x] 修复 BUG：因移动端限制，音乐无法自动播放
 - [x] 修复 BUG：播放历史不能及时刷新
 
+## TODO
+- [ ] 已知 BUG：部分移动端浏览器中，transform: rotate 对应的 animation-play-state 属性工作不正常
+- [ ] 已知 BUG：部分移动端浏览器中，audio 组件工作不正常
+
 ## 参考资料
 - [https://cn.vuejs.org/v2/guide/](https://cn.vuejs.org/v2/guide/)
 - [https://vuex.vuejs.org/](https://vuex.vuejs.org/)

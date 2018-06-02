@@ -17,8 +17,9 @@ export default {
   components: { GAudio },
   beforeCreate() {
     console.log(
-      "%c Gito Player @ Github.com/iflycn/music",
-      "margin:1em 0;padding:1em;color:#fff;border-radius:.2em;background:#3caaf7"
+      "%c Gito Player %c Github.com/iflycn/music ",
+      "background:#df3436;padding:1px;border-radius:3px 0 0 3px;color:#fff",
+      "background:#888;padding:1px;border-radius:0 3px 3px 0;color:#fff"
     );
   }
 };
