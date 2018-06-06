@@ -34,12 +34,14 @@ export default {
     };
   },
   created() {
-    window.addEventListener("touchend", this.$_FixAutoplay);
-    window.addEventListener("scroll", () => {
-      this.scrollTop = window.scrollY;
-    });
+    this.audio.song.url ||
+      window.addEventListener("touchend", this.$_FixAutoplay);
+    window.addEventListener("scroll", this.$_SetScrollTop);
     this.history = localStorage.history;
     this.$_GetList();
+  },
+  destroyed() {
+    window.removeEventListener("scroll", this.$_SetScrollTop);
   },
   computed: {
     ...mapState(["audio"]),
@@ -59,6 +61,9 @@ export default {
     $_FixAutoplay() {
       this.$root.bus.$emit("GAudioFixAutoplay");
       window.removeEventListener("touchend", this.$_FixAutoplay);
+    },
+    $_SetScrollTop() {
+      this.scrollTop = window.scrollY;
     },
     $_CompleteNum(i) {
       i += 1;

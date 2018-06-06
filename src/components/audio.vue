@@ -35,17 +35,12 @@ export default {
     },
     "audio.currentTime"() {
       if (this.audio.currentTime >= this.audio.duration) {
-        this.$_SongPause();
-        this.audio.ids.length > 1 && this.$_SongNext();
+        this.audio.ids.length > 1 ? this.$_SongNext() : this.$_SongPause();
       }
     },
     "audio.song.id"() {
       clearInterval(this.audio.timer);
-      this.setAudioTimer(
-        setInterval(() => {
-          this.setAudioLine(this.$_StartTimer());
-        }, 1e3)
-      );
+      this.setAudioTimer(setInterval(() => this.$_StartTimer(), 1e3));
     }
   },
   methods: {
@@ -58,6 +53,28 @@ export default {
       "setAudioCurrentTime",
       "setAudioSong"
     ]),
+    $_StartTimer() {
+      const duration = this.$refs.audio.duration;
+      const currentTime = this.$refs.audio.currentTime;
+      this.setAudioDuration(duration);
+      this.setAudioCurrentTime(currentTime);
+      const lrc = [...this.formatLrc];
+      if (!this.audio.isPaused) {
+        lrc.push({ time: duration * 1e3 });
+        if (currentTime < lrc[0].time / 1e3) {
+          this.setAudioLine(1e-3);
+        } else {
+          for (let i = 0; i < lrc.length - 1; i++) {
+            if (
+              currentTime >= lrc[i].time / 1e3 &&
+              currentTime < lrc[i + 1].time / 1e3
+            ) {
+              this.setAudioLine(i);
+            }
+          }
+        }
+      }
+    },
     $_FixAutoplay() {
       this.$refs.audio
         .play()
@@ -67,25 +84,6 @@ export default {
         .catch(err => {
           console.warn(err);
         });
-    },
-    $_StartTimer() {
-      const duration = this.$refs.audio.duration;
-      const currentTime = this.$refs.audio.currentTime;
-      this.setAudioDuration(duration);
-      this.setAudioCurrentTime(currentTime);
-      const lrc = [...this.formatLrc];
-      lrc.push({ time: duration * 1e3 });
-      if (currentTime < lrc[0].time / 1e3) {
-        return 1e-3;
-      }
-      for (let i = 0; i < lrc.length - 1; i++) {
-        if (
-          currentTime >= lrc[i].time / 1e3 &&
-          currentTime < lrc[i + 1].time / 1e3
-        ) {
-          return i;
-        }
-      }
     },
     $_SongPlay() {
       if (this.audio.duration > 0) {

@@ -71,4 +71,9 @@ body {
 a {
   color: #333;
 }
+div.home,
+div.detail {
+  width: 100%;
+  min-height: 100vh;
+}
 </style>
