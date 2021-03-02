@@ -5,7 +5,7 @@
 
 export default {
   //常量：API基础地址
-  baseUrl: "https://www.easy-mock.com/mock/5b06a51ba3065411030dc3c2/music",
+  baseUrl: "https://www.fastmock.site/mock/ebd94dd90811223d156b69521abbd9d2/music",
 
   //函数：判断是否移动设备（无参数）
   isMobile() {
